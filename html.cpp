@@ -7,6 +7,7 @@
 #include <iostream>
 #include <fstream>
 #include <curl/curl.h>
+
 using namespace std;
 
 struct Node{
@@ -31,16 +32,13 @@ int open_address(string url){
     res = curl_easy_perform(curl);
     /* Check for errors */ 
     
-   // if(res != CURLE_OK)
-   //   fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-
     curl_easy_cleanup(curl);
   }
  if(res != 0 && res != 23){
-
-	return 1;
+    return 1;
+ }else{
+    return 0;
  }
-   return 0;
 }
 
 struct Node * directory_scan(string name, DIR* dir,struct dirent *ent, struct Node *node){
@@ -74,16 +72,15 @@ struct Node * directory_scan(string name, DIR* dir,struct dirent *ent, struct No
     }
     closedir (dir); 
     } else {
-    /* could not open directory */
         cout << "Could Not Open" << name.c_str() << endl;
-	}
-	setinel_adr = node->next;
+    }
+    setinel_adr = node->next;
     return node;     
 
 }
 void check_file_for_duds(string filename){
 	ifstream inFile;
-	//cerr  << "\e[0;31mfile: " << filename<< "\e[0m \e[0;31m \e[0;22m \e[0m" << endl;
+
 	inFile.open(&filename[0], ios::in);
 	if(!inFile){
 		cerr << "error reading file" << endl;
@@ -104,14 +101,9 @@ void check_file_for_duds(string filename){
 
 			}else{ 
 			//Internal
-				//have to get right position in the folder.
-				//cerr << "\e[0m \e[0;36m " <<"link: " << filename <<"~~"<< part << "\e[0m"  << endl;
 				string cmd = "cd /" + filename.substr(pos,filename.rfind("/"));
 				string wat;
 				system(cmd.c_str());
-				//cmd = "if ls " + filename +" >/dev/null 2>&1 ;then echo FOUND; else echo NONE FOUND; fi";
-				//wat = system(cmd.c_str());
-				//cerr << wat;
 				ifstream ifile(filename.c_str());
 				if(!ifile) cerr << "Internal File Not Found" << endl;
 			}
@@ -130,7 +122,7 @@ int main(int argc, char* argv[])
     //temporary directory plz
     directory_scan("/srv/webspace/ian",dir,ent,addresses);
     cerr << "done." << endl << endl;
-    cerr << "The next stage is the most time intensive" << endl;
+    cerr << "The following stage is the most time intensive:" << endl;
     cerr << "searching through files for broken links... " << endl;
     for(tmp = addresses; tmp->next != setinel_adr; tmp = tmp->next){ 
         check_file_for_duds(*(tmp->address));
@@ -138,5 +130,3 @@ int main(int argc, char* argv[])
     cerr << "done. \e[0m" << endl;
     return 0;    
 }
-
-
